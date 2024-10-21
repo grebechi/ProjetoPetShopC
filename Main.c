@@ -219,6 +219,41 @@ void exibirClientes() {
     }
 }
 
+// Função para exibir clientes e seus pets
+void exibirClientesComPets() {
+    Cliente *clientes;
+    Pet *pets;
+    int quantidadeClientes, quantidadePets;
+
+    // Obtém todos os clientes e pets
+    listarClientesComPets(&clientes, &pets, &quantidadeClientes, &quantidadePets);
+
+    if (quantidadeClientes == 0) {
+        printf("Nenhum cliente cadastrado.\n");
+    } else {
+        // Exibe cada cliente e os pets associados
+        for (int i = 0; i < quantidadeClientes; i++) {
+            printf("Cliente: %s (Código: %d, Telefone: %s, CPF: %s)\n", clientes[i].nome, clientes[i].cod, clientes[i].tel, clientes[i].cpf);
+            bool temPets = false;
+
+            // Verifica se há pets vinculados ao cliente
+            for (int j = 0; j < quantidadePets; j++) {
+                if (pets[j].codCliente == clientes[i].cod) {
+                    if (!temPets) {
+                        printf("  Pets:\n");
+                        temPets = true;
+                    }
+                    printf("    - Pet: %s (Espécie: %s, Código Pet: %d)\n", pets[j].nome, pets[j].especie, pets[j].cod);
+                }
+            }
+
+            if (!temPets) {
+                printf("  Nenhum pet vinculado a este cliente.\n");
+            }
+        }
+    }
+}
+
 // Função para verificar pets vinculados ao cliente e, se o usuário confirmar, excluir o cliente e os pets
 void excluirClienteComVerificacao(int codCliente) {
     int quantidadePetsVinculados;
@@ -261,12 +296,13 @@ void menuClientes() {
         printf("\n--- Menu de Clientes ---\n");
         printf("0. Voltar\n");
         printf("1. Listar clientes\n");
-        printf("2. Cadastrar cliente\n");
-        printf("3. Pesquisar cliente por nome\n");
-        printf("4. Excluir cliente por código\n");
+        printf("2. Listar clientes e pets\n");  // Nova opção
+        printf("3. Cadastrar cliente\n");
+        printf("4. Pesquisar cliente por nome\n");
+        printf("5. Excluir cliente por código\n");
 
         if (!clientesPredefinidosAdicionados) {
-            printf("5. Adicionar clientes pré-definidos (apenas uma vez)\n");
+            printf("6. Adicionar clientes pré-definidos (apenas uma vez)\n");
         }
 
         printf("Escolha uma opcao: ");
@@ -279,7 +315,10 @@ void menuClientes() {
             case 1:
                 exibirClientes(); // Usar a nova função para exibir clientes
                 break;
-            case 2: {
+            case 2:
+                exibirClientesComPets();  // Chama a nova função
+                break;
+            case 3: {
                 char nome[100], tel[15], cpf[12];
                 printf("Digite o nome: ");
                 scanf(" %[^\n]", nome);
@@ -290,7 +329,7 @@ void menuClientes() {
                 cadastrarCliente(nome, tel, cpf);
                 break;
             }
-            case 3: {
+            case 4: {
                 char nome[100];
                 printf("Digite o nome do cliente: ");
                 scanf(" %[^\n]", nome);
@@ -302,14 +341,14 @@ void menuClientes() {
                 }
                 break;
             }
-            case 4: {
+            case 5: {
                 int codCliente;
                 printf("Digite o código do cliente: ");
                 scanf("%d", &codCliente);
                 excluirClienteComVerificacao(codCliente);
                 break;
             }
-            case 5:
+            case 6:
                 if (!clientesPredefinidosAdicionados) {
                     adicionarClientesPredefinidos();
                 } else {

@@ -19,5 +19,6 @@ Cliente* buscarClientePorCodigo(int cod);
 bool excluirClientePorCodigo(int cod);
 Cliente* listarClientes(int *quantidade);
 bool verificarPetsVinculados(int codCliente, Pet **petsVinculados, int *quantidade); // Verifica e retorna pets vinculados
+void listarClientesComPets(Cliente **clientes, Pet **pets, int *quantidadeClientes, int *quantidadePets);
 
 #endif

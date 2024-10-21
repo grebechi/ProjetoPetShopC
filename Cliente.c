@@ -126,6 +126,12 @@ Cliente* listarClientes(int *quantidade) {
     return clientes;
 }
 
+// Função que retorna um array de clientes e seus respectivos pets
+void listarClientesComPets(Cliente **clientes, Pet **pets, int *quantidadeClientes, int *quantidadePets) {
+    *clientes = listarClientes(quantidadeClientes);  // Obtém todos os clientes
+    *pets = listarPets(quantidadePets);  // Obtém todos os pets
+}
+
 // Função para obter a quantidade de clientes
 int quantidadeClientes() {
     return totalClientes;
