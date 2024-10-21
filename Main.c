@@ -8,15 +8,42 @@
 
 void exibirPrestacoes() {
     int quantidade;
-    ServicoPrestado *listaPrestacoes = listarPrestacoes(&quantidade); // Obtém o array e a quantidade
+    ServicoPrestado *listaServicosPrestados = listarPrestacoes(&quantidade);  // Obtém os serviços prestados
 
     if (quantidade == 0) {
         printf("Nenhum serviço prestado registrado.\n");
     } else {
         for (int i = 0; i < quantidade; i++) {
-            printf("Código Pet: %d, Código Serviço: %d, Data: %s\n", listaPrestacoes[i].codPet, listaPrestacoes[i].codServico, listaPrestacoes[i].data);
+            // Buscar o pet
+            Pet *pet = buscarPetPorCodigo(listaServicosPrestados[i].codPet);
+            if (pet == NULL) {
+                printf("Pet não encontrado (Código: %d).\n", listaServicosPrestados[i].codPet);
+                continue;
+            }
+
+            // Buscar o cliente associado ao pet
+            Cliente *cliente = buscarClientePorCodigo(pet->codCliente);
+            if (cliente == NULL) {
+                printf("Cliente não encontrado para o pet %s (Código: %d).\n", pet->nome, pet->cod);
+                continue;
+            }
+
+            // Buscar o serviço
+            Servico *servico = buscarServicoPorCodigo(listaServicosPrestados[i].codServico);
+            if (servico == NULL) {
+                printf("Serviço não encontrado (Código: %d).\n", listaServicosPrestados[i].codServico);
+                continue;
+            }
+
+            // Exibir as informações formatadas
+            printf("Pet: %s (Código: %d), Serviço: %s (Código: %d), Data: %s, Cliente Solicitante: %s (Código: %d)\n",
+                   pet->nome, pet->cod,
+                   servico->nome, servico->cod,
+                   listaServicosPrestados[i].data,
+                   cliente->nome, cliente->cod);
         }
     }
+
 }
 
 // Função para o menu de Serviços Prestados
