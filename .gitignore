@@ -1,0 +1,5 @@
+# Ignorar a pasta de configurações do VSCode
+.vscode/
+
+# Ignorar o arquivo executável gerado
+petshop_app
