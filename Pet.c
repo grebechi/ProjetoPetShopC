@@ -75,6 +75,19 @@ Pet* buscarPetPorCodigo(int cod) {
     return NULL; // Pet não encontrado
 }
 
+
+// Exclui todos os pets vinculados a um cliente
+void excluirPetsPorCliente(int codCliente) {
+    int quantidade;
+    Pet *listaPets = listarPets(&quantidade);
+
+    for (int i = 0; i < quantidade; i++) {
+        if (listaPets[i].codCliente == codCliente) {
+            excluirPetPorCodigo(listaPets[i].cod); // Exclui o pet
+        }
+    }
+}
+
 // Função para excluir um pet pelo código
 bool excluirPetPorCodigo(int cod) {
     for (int i = 0; i < totalPets; i++) {

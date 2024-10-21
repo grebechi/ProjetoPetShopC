@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "Cliente.h"
+#include "Pet.h"
 
 #define TAMANHO_INICIAL 5
 
@@ -75,6 +76,33 @@ Cliente* buscarClientePorCodigo(int cod) {
         }
     }
     return NULL; // Cliente não encontrado
+}
+
+// Verifica se o cliente tem pets vinculados e retorna o array de pets vinculados
+bool verificarPetsVinculados(int codCliente, Pet **petsVinculados, int *quantidade) {
+    int totalPets;
+    Pet *listaPets = listarPets(&totalPets); // Obtém a lista de todos os pets
+    *quantidade = 0;
+
+    for (int i = 0; i < totalPets; i++) {
+        if (listaPets[i].codCliente == codCliente) {
+            (*quantidade)++;
+        }
+    }
+
+    // Aloca espaço para armazenar os pets vinculados, caso haja pets
+    if (*quantidade > 0) {
+        *petsVinculados = (Pet *)malloc((*quantidade) * sizeof(Pet));
+        int index = 0;
+        for (int i = 0; i < totalPets; i++) {
+            if (listaPets[i].codCliente == codCliente) {
+                (*petsVinculados)[index++] = listaPets[i];
+            }
+        }
+        return true;
+    }
+
+    return false; // Nenhum pet vinculado encontrado
 }
 
 // Função para excluir um cliente pelo código

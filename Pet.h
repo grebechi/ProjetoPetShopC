@@ -9,13 +9,13 @@ typedef struct {
     int codCliente; // Código do cliente ao qual o pet está vinculado
 } Pet;
 
-// Funções para gerenciamento de pets
 bool inicializarPets();
 void encerrarPets();
 bool cadastrarPet(const char *nome, const char *especie, int codCliente);
 Pet* buscarPetPorNome(const char *nome);
 Pet* buscarPetPorCodigo(int cod);
 bool excluirPetPorCodigo(int cod);
-Pet* listarPets(int *quantidade); // Retorna um array de pets e a quantidade deles
+Pet* listarPets(int *quantidade);
+void excluirPetsPorCliente(int codCliente); // Função para excluir os pets vinculados a um cliente
 
 #endif

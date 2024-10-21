@@ -219,6 +219,40 @@ void exibirClientes() {
     }
 }
 
+// Função para verificar pets vinculados ao cliente e, se o usuário confirmar, excluir o cliente e os pets
+void excluirClienteComVerificacao(int codCliente) {
+    int quantidadePetsVinculados;
+    Pet *petsVinculados = NULL;
+
+    if (verificarPetsVinculados(codCliente, &petsVinculados, &quantidadePetsVinculados)) {
+        printf("O cliente possui %d pet(s) vinculado(s):\n", quantidadePetsVinculados);
+        for (int i = 0; i < quantidadePetsVinculados; i++) {
+            printf("Pet %d - Nome: %s, Espécie: %s\n", petsVinculados[i].cod, petsVinculados[i].nome, petsVinculados[i].especie);
+        }
+
+        char confirmacao;
+        printf("Deseja continuar e excluir o cliente e seus pets vinculados? (s/n): ");
+        scanf(" %c", &confirmacao);
+
+        if (confirmacao == 's' || confirmacao == 'S') {
+            excluirClientePorCodigo(codCliente); // Exclui o cliente
+            excluirPetsPorCliente(codCliente); // Exclui os pets vinculados
+            printf("Cliente e pets excluídos com sucesso.\n");
+        } else {
+            printf("Operação de exclusão cancelada.\n");
+        }
+
+        free(petsVinculados); // Libera a memória alocada para os pets vinculados
+    } else {
+        // Se não houver pets vinculados, exclui o cliente diretamente
+        if (excluirClientePorCodigo(codCliente)) {
+            printf("Cliente excluído com sucesso.\n");
+        } else {
+            printf("Cliente não encontrado.\n");
+        }
+    }
+}
+
 // Função para o menu de Clientes
 void menuClientes() {
     int opcao;
@@ -269,14 +303,10 @@ void menuClientes() {
                 break;
             }
             case 4: {
-                int cod;
+                int codCliente;
                 printf("Digite o código do cliente: ");
-                scanf("%d", &cod);
-                if (excluirClientePorCodigo(cod)) {
-                    printf("Cliente excluído com sucesso.\n");
-                } else {
-                    printf("Cliente não encontrado.\n");
-                }
+                scanf("%d", &codCliente);
+                excluirClienteComVerificacao(codCliente);
                 break;
             }
             case 5:
