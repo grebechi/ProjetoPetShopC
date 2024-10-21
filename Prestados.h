@@ -11,7 +11,7 @@ typedef struct {
 // Funções para gerenciamento dos serviços prestados
 bool inicializarPrestados();
 void encerrarPrestados();
-bool registrarPrestacao(int codPet, int codServico, const char *data);
+int registrarPrestacao(int codPet, int codServico, const char *data);
 ServicoPrestado* buscarPrestacaoPorPet(int codPet);
 ServicoPrestado* listarPrestacoes(int *quantidade); // Retorna um array de serviços prestados e a quantidade deles
 int quantidadePrestacoes();

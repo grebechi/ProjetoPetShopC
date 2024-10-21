@@ -74,7 +74,17 @@ void menuPrestados() {
                 scanf("%d", &codServico);
                 printf("Digite a data (DD/MM/AAAA): ");
                 scanf(" %[^\n]", data);
-                registrarPrestacao(codPet, codServico, data);
+
+                // Tentar registrar o serviço prestado
+                int resultado = registrarPrestacao(codPet, codServico, data);
+
+                if (resultado == 1) {
+                    printf("Erro: Pet com o código %d não encontrado.\n", codPet);
+                } else if (resultado == 2) {
+                    printf("Erro: Serviço com o código %d não encontrado.\n", codServico);
+                } else {
+                    printf("Serviço registrado com sucesso!\n");
+                }
                 break;
             }
             default:

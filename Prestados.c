@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "Prestados.h"
+#include "Pet.h"
+#include "Servico.h"
 
 #define TAMANHO_INICIAL 5
 
@@ -37,21 +39,34 @@ void ajustarTamanhoPrestados() {
     }
 }
 
-// Função para registrar um serviço prestado
-bool registrarPrestacao(int codPet, int codServico, const char *data) {
-    if (totalPrestados == tamanhoPrestados) {
-        ajustarTamanhoPrestados();
+// Retorna 0 se tudo estiver certo, 1 se o pet não existir, 2 se o serviço não existir
+int registrarPrestacao(int codPet, int codServico, const char *data) {
+    // Verificar se o pet existe
+    Pet *pet = buscarPetPorCodigo(codPet);
+    if (pet == NULL) {
+        return 1;  // Código do pet inválido
     }
 
-    ServicoPrestado novoPrestado;
-    novoPrestado.codPet = codPet;
-    novoPrestado.codServico = codServico;
-    strncpy(novoPrestado.data, data, sizeof(novoPrestado.data));
+    // Verificar se o serviço existe
+    Servico *servico = buscarServicoPorCodigo(codServico);
+    if (servico == NULL) {
+        return 2;  // Código do serviço inválido
+    }
 
-    prestados[totalPrestados] = novoPrestado;
+    // Registrar a prestação do serviço
+    if (totalPrestados == tamanhoPrestados) {
+        ajustarTamanhoPrestados();  // Realoca a memória se necessário
+    }
+
+    ServicoPrestado novaPrestacao;
+    novaPrestacao.codPet = codPet;
+    novaPrestacao.codServico = codServico;
+    strncpy(novaPrestacao.data, data, sizeof(novaPrestacao.data));
+
+    prestados[totalPrestados] = novaPrestacao;
     totalPrestados++;
 
-    return true;
+    return 0;  // Sucesso
 }
 
 // Função para buscar serviços prestados por pet
