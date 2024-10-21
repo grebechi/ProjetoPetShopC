@@ -305,7 +305,17 @@ void exibirPets() {
         printf("Nenhum pet cadastrado.\n");
     } else {
         for (int i = 0; i < quantidade; i++) {
-            printf("Código: %d, Nome: %s, Espécie: %s, Código Cliente: %d\n", listaPets[i].cod, listaPets[i].nome, listaPets[i].especie, listaPets[i].codCliente);
+            Cliente *cliente = buscarClientePorCodigo(listaPets[i].codCliente); // Busca o cliente pelo código
+
+            if (cliente != NULL) {
+                printf("Código: %d, Nome: %s, Espécie: %s, Cliente: %s (Código: %d)\n",
+                       listaPets[i].cod, listaPets[i].nome, listaPets[i].especie,
+                       cliente->nome, cliente->cod);
+            } else {
+                printf("Código: %d, Nome: %s, Espécie: %s, Cliente não encontrado (Código Cliente: %d)\n",
+                       listaPets[i].cod, listaPets[i].nome, listaPets[i].especie,
+                       listaPets[i].codCliente);
+            }
         }
     }
 }
