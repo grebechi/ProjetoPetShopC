@@ -432,6 +432,11 @@ void exibirPets() {
     int quantidade;
     Pet *listaPets = listarPets(&quantidade); // Obtém o array e a quantidade
 
+     if (listaPets == NULL) {
+        printf("Erro ao alocar memória para pets.\n");
+        return;
+    }
+
     if (quantidade == 0) {
         printf("Nenhum pet cadastrado.\n");
     } else {
@@ -449,6 +454,8 @@ void exibirPets() {
             }
         }
     }
+
+    free(listaPets);  // Libera a memória do array de listaPets temporário após o uso
 }
 // Função para o menu de Pets
 void menuPets() {
@@ -460,7 +467,8 @@ void menuPets() {
         printf("1. Listar pets\n");
         printf("2. Cadastrar pet\n");
         printf("3. Pesquisar pet por nome\n");
-        printf("4. Excluir pet por código\n");
+        printf("4. Pesquisar pet por nome\n");
+        printf("5. Excluir pet por código\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
@@ -490,12 +498,26 @@ void menuPets() {
                 Pet* pet = buscarPetPorNome(nome);
                 if (pet) {
                     printf("Pet encontrado: Nome: %s, Espécie: %s, Código Cliente: %d\n", pet->nome, pet->especie, pet->codCliente);
+                    free(pet);  // Libera a memória do pet temporário após o uso
                 } else {
                     printf("Pet não encontrado.\n");
                 }
                 break;
             }
             case 4: {
+                int codPet;
+                printf("Digite o código do pet: ");
+                scanf("%d", &codPet);
+
+                Pet *pet = buscarPetPorCodigo(codPet);
+                if (pet) {
+                    printf("Pet encontrado: Nome: %s, Espécie: %s, Código Cliente: %d\n", pet->nome, pet->especie, pet->codCliente);
+                    free(pet);  // Libera a memória do pet temporário após o uso
+                } else {
+                    printf("Pet não encontrado.\n");
+                }
+            }
+            case 5: {
                 int cod;
                 printf("Digite o código do pet: ");
                 scanf("%d", &cod);

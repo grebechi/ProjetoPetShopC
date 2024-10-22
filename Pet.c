@@ -57,9 +57,17 @@ bool cadastrarPet(const char *nome, const char *especie, int codCliente) {
 
 // Função para buscar um pet pelo nome
 Pet* buscarPetPorNome(const char *nome) {
-    for (int i = 0; i < totalPets; i++) {
-        if (strcmp(pets[i].nome, nome) == 0) {
-            return &pets[i];
+     for (int i = 0; i < totalPets; i++) {
+        if (strcasecmp(pets[i].nome, nome) == 0) {
+            // Alocar memória para o pet temporário
+            Pet *petTemp = (Pet *)malloc(sizeof(Pet));
+            if (petTemp == NULL) {
+                return NULL; // Falha na alocação de memória
+            }
+
+            // Copiar os dados do pet encontrado para o pet temporário
+            *petTemp = pets[i];
+            return petTemp;
         }
     }
     return NULL; // Pet não encontrado
@@ -69,7 +77,15 @@ Pet* buscarPetPorNome(const char *nome) {
 Pet* buscarPetPorCodigo(int cod) {
     for (int i = 0; i < totalPets; i++) {
         if (pets[i].cod == cod) {
-            return &pets[i];
+            // Alocar memória para o pet temporário
+            Pet *petTemp = (Pet *)malloc(sizeof(Pet));
+            if (petTemp == NULL) {
+                return NULL; // Falha na alocação de memória
+            }
+
+            // Copiar os dados do pet encontrado para o pet temporário
+            *petTemp = pets[i];
+            return petTemp;
         }
     }
     return NULL; // Pet não encontrado
@@ -106,7 +122,19 @@ bool excluirPetPorCodigo(int cod) {
 // Função para listar pets e retornar o array de pets
 Pet* listarPets(int *quantidade) {
     *quantidade = totalPets;
-    return pets;
+
+    // Alocar memória para o array de pets temporário
+    Pet *petsTemp = (Pet *)malloc(totalPets * sizeof(Pet));
+    if (petsTemp == NULL) {
+        return NULL; // Falha na alocação de memória
+    }
+
+    // Copiar os dados dos pets para o array temporário
+    for (int i = 0; i < totalPets; i++) {
+        petsTemp[i] = pets[i];
+    }
+
+    return petsTemp;
 }
 
 // Função para obter a quantidade de pets
