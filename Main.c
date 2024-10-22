@@ -245,7 +245,12 @@ void adicionarClientesPredefinidos() {
 // Função para exibir a lista de clientes
 void exibirClientes() {
     int quantidade;
-    Cliente *clientes = listarClientes(&quantidade); // Obtém o array e a quantidade
+    Cliente *clientes = listarClientes(&quantidade); // Obtém a lista de clientes
+
+    if (clientes == NULL) {
+        printf("Erro ao alocar memória para clientes.\n");
+        return;
+    }
 
     if (quantidade == 0) {
         printf("Nenhum cliente cadastrado.\n");
@@ -254,6 +259,9 @@ void exibirClientes() {
             printf("Código: %d, Nome: %s, Telefone: %s, CPF: %s\n", clientes[i].cod, clientes[i].nome, clientes[i].tel, clientes[i].cpf);
         }
     }
+
+    free(clientes);  // Libera a memória do array de clientes temporário após o uso
+
 }
 
 // Função para exibir clientes e seus pets
@@ -336,10 +344,11 @@ void menuClientes() {
         printf("2. Listar clientes e pets\n");  // Nova opção
         printf("3. Cadastrar cliente\n");
         printf("4. Pesquisar cliente por nome\n");
-        printf("5. Excluir cliente por código\n");
+        printf("5. Pesquisar cliente por código\n");
+        printf("6. Excluir cliente por código\n");
 
         if (!clientesPredefinidosAdicionados) {
-            printf("6. Adicionar clientes pré-definidos (apenas uma vez)\n");
+            printf("7. Adicionar clientes pré-definidos (apenas uma vez)\n");
         }
 
         printf("Escolha uma opcao: ");
@@ -356,7 +365,7 @@ void menuClientes() {
                 exibirClientesComPets();  // Chama a nova função
                 break;
             case 3: {
-                char nome[100], tel[15], cpf[12];
+                char nome[100], tel[15], cpf[14];
                 printf("Digite o nome: ");
                 scanf(" %[^\n]", nome);
                 printf("Digite o telefone: ");
@@ -367,25 +376,41 @@ void menuClientes() {
                 break;
             }
             case 4: {
-                char nome[100];
+                 char nome[100];
                 printf("Digite o nome do cliente: ");
                 scanf(" %[^\n]", nome);
                 Cliente *cliente = buscarClientePorNome(nome);
                 if (cliente) {
                     printf("Cliente encontrado: Nome: %s, Telefone: %s, CPF: %s\n", cliente->nome, cliente->tel, cliente->cpf);
+                    free(cliente);  // Libera a memória do cliente temporário após o uso
                 } else {
                     printf("Cliente não encontrado.\n");
                 }
                 break;
             }
-            case 5: {
+
+             case 5: {
+                int codCliente;
+                printf("Digite o código do cliente: ");
+                scanf("%d", &codCliente);
+                Cliente *cliente = buscarClientePorCodigo(codCliente);
+                
+                if (cliente) {
+                    printf("Cliente encontrado: Nome: %s, Telefone: %s, CPF: %s\n", cliente->nome, cliente->tel, cliente->cpf);
+                    free(cliente);  // Libera a memória do cliente temporário após o uso
+                } else {
+                    printf("Cliente não encontrado.\n");
+                }
+                break;
+            }
+            case 6: {
                 int codCliente;
                 printf("Digite o código do cliente: ");
                 scanf("%d", &codCliente);
                 excluirClienteComVerificacao(codCliente);
                 break;
             }
-            case 6:
+            case 7:
                 if (!clientesPredefinidosAdicionados) {
                     adicionarClientesPredefinidos();
                 } else {

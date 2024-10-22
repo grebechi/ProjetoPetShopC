@@ -61,8 +61,16 @@ bool cadastrarCliente(const char *nome, const char *tel, const char *cpf) {
 // Função para buscar um cliente pelo nome
 Cliente* buscarClientePorNome(const char *nome) {
     for (int i = 0; i < totalClientes; i++) {
-        if (strcmp(clientes[i].nome, nome) == 0) {
-            return &clientes[i];
+        if (strcasecmp(clientes[i].nome, nome) == 0) {
+            // Alocar memória para o cliente temporário
+            Cliente *clienteTemp = (Cliente *)malloc(sizeof(Cliente));
+            if (clienteTemp == NULL) {
+                return NULL; // Falha na alocação de memória
+            }
+
+            // Copiar os dados do cliente encontrado para o cliente temporário
+            *clienteTemp = clientes[i];
+            return clienteTemp;
         }
     }
     return NULL; // Cliente não encontrado
@@ -72,7 +80,15 @@ Cliente* buscarClientePorNome(const char *nome) {
 Cliente* buscarClientePorCodigo(int cod) {
     for (int i = 0; i < totalClientes; i++) {
         if (clientes[i].cod == cod) {
-            return &clientes[i];
+            // Alocar memória para o cliente temporário
+            Cliente *clienteTemp = (Cliente *)malloc(sizeof(Cliente));
+            if (clienteTemp == NULL) {
+                return NULL; // Falha na alocação de memória
+            }
+
+            // Copiar os dados do cliente encontrado para o cliente temporário
+            *clienteTemp = clientes[i];
+            return clienteTemp;
         }
     }
     return NULL; // Cliente não encontrado
@@ -123,7 +139,19 @@ bool excluirClientePorCodigo(int cod) {
 // Função para listar clientes e retornar o array de clientes
 Cliente* listarClientes(int *quantidade) {
     *quantidade = totalClientes;
-    return clientes;
+
+    // Alocar memória para o array de clientes temporário
+    Cliente *clientesTemp = (Cliente *)malloc(totalClientes * sizeof(Cliente));
+    if (clientesTemp == NULL) {
+        return NULL; // Falha na alocação de memória
+    }
+
+    // Copiar os dados dos clientes para o array temporário
+    for (int i = 0; i < totalClientes; i++) {
+        clientesTemp[i] = clientes[i];
+    }
+
+    return clientesTemp;
 }
 
 // Função que retorna um array de clientes e seus respectivos pets
