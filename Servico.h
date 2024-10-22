@@ -16,6 +16,7 @@ bool cadastrarServico(const char *nome, float valorCobrado, float valorCusto);
 Servico* buscarServicoPorNome(const char *nome);
 Servico* buscarServicoPorCodigo(int cod);
 bool excluirServicoPorCodigo(int cod);
+bool atualizarServico(int cod, const char *nome, float valorCobrado, float valorCusto); // Função para atualizar serviço
 Servico* listarServicos(int *quantidade); // Retorna um array de serviços e a quantidade deles
 int quantidadeServicos();
 

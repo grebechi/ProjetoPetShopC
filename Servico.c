@@ -96,6 +96,20 @@ Servico* listarServicos(int *quantidade) {
     return servicos;
 }
 
+// Função para atualizar os dados de um serviço
+bool atualizarServico(int cod, const char *nome, float valorCobrado, float valorCusto) {
+    for (int i = 0; i < totalServicos; i++) {
+        if (servicos[i].cod == cod) {
+            // Atualizar os valores do serviço
+            strncpy(servicos[i].nome, nome, sizeof(servicos[i].nome));
+            servicos[i].valorCobrado = valorCobrado;
+            servicos[i].valorCusto = valorCusto;
+            return true; // Serviço atualizado com sucesso
+        }
+    }
+    return false; // Serviço não encontrado
+}
+
 // Função para obter a quantidade de serviços
 int quantidadeServicos() {
     return totalServicos;

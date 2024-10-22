@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "Cliente.h"
 #include "Pet.h"
 #include "Servico.h"
@@ -156,11 +157,12 @@ void menuServicos() {
         printf("1. Listar serviços\n");
         printf("2. Cadastrar serviço\n");
         printf("3. Pesquisar serviço por nome\n");
-        printf("4. Excluir serviço por código\n");
+        printf("4. Atualizar dados do serviço\n");
+        printf("5. Excluir serviço por código\n");
 
         // Verifica se os serviços pré-definidos já foram adicionados
         if (!servicosPredefinidosAdicionados) {
-            printf("5. Adicionar serviços pré-definidos (apenas uma vez)\n");
+            printf("6. Adicionar serviços pré-definidos (apenas uma vez)\n");
         }
 
         printf("Escolha uma opcao: ");
@@ -198,6 +200,58 @@ void menuServicos() {
                 break;
             }
             case 4: {
+                int codServico;
+                char nome[100];
+                float valorCobrado, valorCusto;
+
+                printf("Digite o código do serviço a ser atualizado: ");
+                scanf("%d", &codServico);
+
+                // Buscar o serviço para exibir os detalhes
+                Servico *servico = buscarServicoPorCodigo(codServico);
+
+                if (servico == NULL) {
+                    printf("Erro: Serviço com o código %d não encontrado.\n", codServico);
+                    return;
+                }
+
+                // Exibir os detalhes atuais do serviço
+                printf("\nServiço encontrado:\n");
+                printf("Código: %d, Nome: %s, Valor Cobrado: %.2f, Valor de Custo: %.2f\n", 
+                    servico->cod, servico->nome, servico->valorCobrado, servico->valorCusto);
+
+                // Armazenar os valores antigos para exibição posterior
+                char nomeAntigo[100];
+                float valorCobradoAntigo = servico->valorCobrado;
+                float valorCustoAntigo = servico->valorCusto;
+                strcpy(nomeAntigo, servico->nome);
+
+                // Solicitar novos valores
+                printf("\nDigite o novo nome do serviço: ");
+                scanf(" %[^\n]", nome);
+                printf("Digite o novo valor cobrado: ");
+                scanf("%f", &valorCobrado);
+                printf("Digite o novo valor de custo: ");
+                scanf("%f", &valorCusto);
+
+                // Atualizar o serviço com os novos valores
+                if (atualizarServico(codServico, nome, valorCobrado, valorCusto)) {
+                    printf("\nServiço atualizado com sucesso.\n");
+
+                    // Exibir os valores antigos e os novos
+                    printf("\nValores antigos:\n");
+                    printf("Nome: %s, Valor Cobrado: %.2f, Valor de Custo: %.2f\n",
+                        nomeAntigo, valorCobradoAntigo, valorCustoAntigo);
+
+                    printf("\nNovos valores:\n");
+                    printf("Nome: %s, Valor Cobrado: %.2f, Valor de Custo: %.2f\n",
+                        nome, valorCobrado, valorCusto);
+                } else {
+                    printf("Erro ao atualizar o serviço.\n");
+                }
+                break;
+            }
+            case 5: {
                 int cod;
                 printf("Digite o código do serviço: ");
                 scanf("%d", &cod);
@@ -208,7 +262,7 @@ void menuServicos() {
                 }
                 break;
             }
-            case 5:
+            case 6:
                 if (!servicosPredefinidosAdicionados) {
                     adicionarServicosPredefinidos();
                 } else {
