@@ -136,15 +136,24 @@ void adicionarServicosPredefinidos() {
 
 void exibirServicos() {
     int quantidade;
-    Servico *listaServicos = listarServicos(&quantidade); // Obtém o array e a quantidade
+    Servico *servicos = listarServicos(&quantidade);  // Obtém a lista de serviços
+
+    if (servicos == NULL) {
+        printf("Erro ao alocar memória para serviços.\n");
+        return;
+    }
 
     if (quantidade == 0) {
         printf("Nenhum serviço cadastrado.\n");
     } else {
         for (int i = 0; i < quantidade; i++) {
-            printf("Código: %d, Nome: %s, Valor Cobrado: %.2f, Valor Custo: %.2f\n", listaServicos[i].cod, listaServicos[i].nome, listaServicos[i].valorCobrado, listaServicos[i].valorCusto);
+            printf("Código: %d, Nome: %s, Valor Cobrado: %.2f, Valor de Custo: %.2f\n", 
+                   servicos[i].cod, servicos[i].nome, servicos[i].valorCobrado, servicos[i].valorCusto);
         }
     }
+
+    free(servicos);  // Libera a memória do array de serviços temporário após o uso
+
 }
 
 // Função para o menu de Serviços
@@ -157,12 +166,13 @@ void menuServicos() {
         printf("1. Listar serviços\n");
         printf("2. Cadastrar serviço\n");
         printf("3. Pesquisar serviço por nome\n");
-        printf("4. Atualizar dados do serviço\n");
-        printf("5. Excluir serviço por código\n");
+        printf("4. Pesquisar serviço por codigo\n");
+        printf("5. Atualizar dados do serviço\n");
+        printf("6. Excluir serviço por código\n");
 
         // Verifica se os serviços pré-definidos já foram adicionados
         if (!servicosPredefinidosAdicionados) {
-            printf("6. Adicionar serviços pré-definidos (apenas uma vez)\n");
+            printf("7. Adicionar serviços pré-definidos (apenas uma vez)\n");
         }
 
         printf("Escolha uma opcao: ");
@@ -191,15 +201,33 @@ void menuServicos() {
                 char nome[100];
                 printf("Digite o nome do serviço: ");
                 scanf(" %[^\n]", nome);
-                Servico* servico = buscarServicoPorNome(nome);
+
+                Servico *servico = buscarServicoPorNome(nome);
                 if (servico) {
-                    printf("Serviço encontrado: Nome: %s, Valor Cobrado: %.2f, Valor Custo: %.2f\n", servico->nome, servico->valorCobrado, servico->valorCusto);
+                    printf("Serviço encontrado: Nome: %s, Valor Cobrado: %.2f, Valor de Custo: %.2f\n", 
+                        servico->nome, servico->valorCobrado, servico->valorCusto);
+                    free(servico);  // Libera a memória do serviço temporário após o uso
                 } else {
                     printf("Serviço não encontrado.\n");
                 }
                 break;
             }
             case 4: {
+                int codServico;
+                printf("Digite o código do serviço: ");
+                scanf("%d", &codServico);
+
+                Servico *servico = buscarServicoPorCodigo(codServico);
+                if (servico) {
+                    printf("Serviço encontrado: Nome: %s, Valor Cobrado: %.2f, Valor de Custo: %.2f\n", 
+                        servico->nome, servico->valorCobrado, servico->valorCusto);
+                    free(servico);  // Libera a memória do serviço temporário após o uso
+                } else {
+                    printf("Serviço não encontrado.\n");
+                }
+                break;
+            }
+            case 5: {
                 int codServico;
                 char nome[100];
                 float valorCobrado, valorCusto;
@@ -251,7 +279,7 @@ void menuServicos() {
                 }
                 break;
             }
-            case 5: {
+            case 6: {
                 int cod;
                 printf("Digite o código do serviço: ");
                 scanf("%d", &cod);
@@ -262,7 +290,7 @@ void menuServicos() {
                 }
                 break;
             }
-            case 6:
+            case 7:
                 if (!servicosPredefinidosAdicionados) {
                     adicionarServicosPredefinidos();
                 } else {
