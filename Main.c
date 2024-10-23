@@ -8,7 +8,7 @@
 #include "Prestados.h"
 
 void exibirPrestacoes() {
-    int quantidade;
+     int quantidade;
     ServicoPrestado *listaServicosPrestados = listarPrestacoes(&quantidade);  // Obtém os serviços prestados
 
     if (quantidade == 0) {
@@ -26,6 +26,7 @@ void exibirPrestacoes() {
             Cliente *cliente = buscarClientePorCodigo(pet->codCliente);
             if (cliente == NULL) {
                 printf("Cliente não encontrado para o pet %s (Código: %d).\n", pet->nome, pet->cod);
+                free(pet);  // Liberar a memória do pet
                 continue;
             }
 
@@ -33,6 +34,8 @@ void exibirPrestacoes() {
             Servico *servico = buscarServicoPorCodigo(listaServicosPrestados[i].codServico);
             if (servico == NULL) {
                 printf("Serviço não encontrado (Código: %d).\n", listaServicosPrestados[i].codServico);
+                free(pet);  // Liberar a memória do pet
+                free(cliente);  // Liberar a memória do cliente
                 continue;
             }
 
@@ -42,8 +45,15 @@ void exibirPrestacoes() {
                    servico->nome, servico->cod,
                    listaServicosPrestados[i].data,
                    cliente->nome, cliente->cod);
+
+            // Liberar a memória alocada para pet, cliente e serviço
+            free(pet);
+            free(cliente);
+            free(servico);
         }
     }
+
+    free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
 
 }
 

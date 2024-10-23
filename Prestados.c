@@ -71,9 +71,17 @@ int registrarPrestacao(int codPet, int codServico, const char *data) {
 
 // Função para buscar serviços prestados por pet
 ServicoPrestado* buscarPrestacaoPorPet(int codPet) {
-    for (int i = 0; i < totalPrestados; i++) {
+      for (int i = 0; i < totalPrestados; i++) {
         if (prestados[i].codPet == codPet) {
-            return &prestados[i];
+            // Alocar memória para o serviço prestado temporário
+            ServicoPrestado *prestacaoTemp = (ServicoPrestado *)malloc(sizeof(ServicoPrestado));
+            if (prestacaoTemp == NULL) {
+                return NULL; // Falha na alocação de memória
+            }
+
+            // Copiar os dados da prestação encontrada para o temporário
+            *prestacaoTemp = prestados[i];
+            return prestacaoTemp;
         }
     }
     return NULL; // Serviço prestado não encontrado
@@ -81,8 +89,21 @@ ServicoPrestado* buscarPrestacaoPorPet(int codPet) {
 
 // Função para listar serviços prestados e retornar o array de serviços prestados
 ServicoPrestado* listarPrestacoes(int *quantidade) {
-    *quantidade = totalPrestados;
-    return prestados;
+     *quantidade = totalPrestados;
+
+    // Alocar memória para o array temporário de serviços prestados
+    ServicoPrestado *prestacoesTemp = (ServicoPrestado *)malloc(totalPrestados * sizeof(ServicoPrestado));
+    if (prestacoesTemp == NULL) {
+        return NULL; // Falha na alocação de memória
+    }
+
+    // Copiar os dados dos serviços prestados para o array temporário
+    for (int i = 0; i < totalPrestados; i++) {
+        prestacoesTemp[i] = prestados[i];
+    }
+
+    return prestacoesTemp;
+
 }
 
 // Função para obter a quantidade de serviços prestados
