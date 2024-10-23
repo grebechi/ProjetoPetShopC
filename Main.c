@@ -7,6 +7,12 @@
 #include "Servico.h"
 #include "Prestados.h"
 
+// Estrutura para armazenar o código do pet e o lucro total
+typedef struct {
+    int codPet;
+    float lucroTotal;
+} PetLucro;
+
 void exibirPrestacoes() {
      int quantidade;
     ServicoPrestado *listaServicosPrestados = listarPrestacoes(&quantidade);  // Obtém os serviços prestados
@@ -115,6 +121,85 @@ void exibirLucroTotalServicos() {
     free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
 }
 
+// Função para comparar os lucros (para qsort)
+int compararLucros(const void *a, const void *b) {
+    PetLucro *lucroA = (PetLucro *)a;
+    PetLucro *lucroB = (PetLucro *)b;
+    return (lucroB->lucroTotal - lucroA->lucroTotal);  // Ordenar em ordem decrescente
+}
+
+void exibirLucroPorPet() {
+    int quantidade;
+    ServicoPrestado *listaServicosPrestados = listarPrestacoes(&quantidade);  // Obtém a lista de serviços prestados
+
+    if (quantidade == 0) {
+        printf("Nenhum serviço prestado registrado.\n");
+        return;
+    }
+
+    // Array para armazenar o lucro total por pet
+    PetLucro petLucros[quantidade];
+    int totalPets = 0;
+    float lucroTotalGeral = 0;
+
+    // Inicializar os arrays de lucros
+    for (int i = 0; i < quantidade; i++) {
+        petLucros[i].codPet = 0;
+        petLucros[i].lucroTotal = 0;
+    }
+
+    // Agrupar os lucros por pet
+    for (int i = 0; i < quantidade; i++) {
+        int codigoPetAtual = listaServicosPrestados[i].codPet;
+
+        // Verificar se o pet já está no array de lucros
+        int encontrado = 0;
+        for (int j = 0; j < totalPets; j++) {
+            if (petLucros[j].codPet == codigoPetAtual) {
+                petLucros[j].lucroTotal += listaServicosPrestados[i].lucro;  // Somar o lucro
+                encontrado = 1;
+                break;
+            }
+        }
+
+        // Se o pet não foi encontrado, adicioná-lo ao array
+        if (!encontrado) {
+            petLucros[totalPets].codPet = codigoPetAtual;
+            petLucros[totalPets].lucroTotal = listaServicosPrestados[i].lucro;
+            totalPets++;
+        }
+    }
+
+    // Ordenar os pets pelo lucro total em ordem decrescente
+    qsort(petLucros, totalPets, sizeof(PetLucro), compararLucros);
+
+    // Exibir os resultados
+    printf("\n--- Ranking de Pets que Mais Trouxeram Lucro ---\n");
+    for (int i = 0; i < totalPets; i++) {
+        // Buscar o pet e o cliente pelo código do pet
+        Pet *pet = buscarPetPorCodigo(petLucros[i].codPet);
+        if (pet != NULL) {
+            Cliente *cliente = buscarClientePorCodigo(pet->codCliente);
+            if (cliente != NULL) {
+                printf("Pet: %s (Código: %d), Cliente: %s (Código: %d), Lucro total: R$: %.2f\n",
+                       pet->nome, pet->cod,
+                       cliente->nome, cliente->cod,
+                       petLucros[i].lucroTotal);
+                free(cliente);  // Liberar a memória do cliente
+            }
+            free(pet);  // Liberar a memória do pet
+        }
+
+        // Somar o lucro total de todos os pets
+        lucroTotalGeral += petLucros[i].lucroTotal;
+    }
+
+    // Exibir o lucro total geral
+    printf("\nLucro total de todos os pets: R$: %.2f\n", lucroTotalGeral);
+
+    free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
+}
+
 // Função para o menu de Serviços Prestados
 void menuPrestados() {
     int opcao;
@@ -125,6 +210,7 @@ void menuPrestados() {
         printf("1. Listar serviços prestados\n");
         printf("2. Registrar serviço prestado\n");
         printf("3. Ver lucro por serviço\n");
+        printf("4. Ver pet que mais trouxe lucro\n"); 
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
@@ -159,6 +245,10 @@ void menuPrestados() {
             }
             case 3:{
                 exibirLucroTotalServicos();  // Exibir os lucros agrupados por serviço
+                break;
+            }
+            case 4:{
+                exibirLucroPorPet();  // Exibir o ranking de pets que mais trouxeram lucro
                 break;
             }
             default:
