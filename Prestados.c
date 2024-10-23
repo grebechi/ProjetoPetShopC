@@ -69,6 +69,67 @@ int registrarPrestacao(int codPet, int codServico, const char *data) {
     return 0;  // Sucesso
 }
 
+// Função para comparar lucros (para qsort)
+int compararLucro(const void *a, const void *b) {
+    LucroServico *servicoA = (LucroServico *)a;
+    LucroServico *servicoB = (LucroServico *)b;
+    return (servicoB->lucroTotal - servicoA->lucroTotal);  // Ordem decrescente
+}
+
+// Função para calcular os lucros dos serviços prestados e retornar o array de lucros
+LucroServico* calcularLucroServicosPrestados(int *totalLucros) {
+    int quantidade;
+    ServicoPrestado *listaServicosPrestados = listarPrestacoes(&quantidade);  // Obtém a lista de serviços prestados
+
+    if (quantidade == 0) {
+        *totalLucros = 0;
+        free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
+        return NULL;
+    }
+
+    // Criar um array para armazenar os lucros por serviço (máximo igual ao total de serviços prestados)
+    LucroServico *lucros = (LucroServico *)malloc(quantidade * sizeof(LucroServico));
+    *totalLucros = 0;
+
+    // Agrupar os lucros por serviço
+    for (int i = 0; i < quantidade; i++) {
+        Servico *servico = buscarServicoPorCodigo(listaServicosPrestados[i].codServico);
+        if (servico == NULL) {
+            continue;
+        }
+
+        float lucro = servico->valorCobrado - servico->valorCusto;  // Calcular o lucro
+
+        // Verificar se o serviço já está no array de lucros
+        int encontrado = 0;
+        for (int j = 0; j < *totalLucros; j++) {
+            if (lucros[j].codServico == servico->cod) {
+                lucros[j].lucroTotal += lucro;  // Somar o lucro
+                encontrado = 1;
+                break;
+            }
+        }
+
+        // Se o serviço não foi encontrado, adicioná-lo ao array
+        if (!encontrado) {
+            lucros[*totalLucros].codServico = servico->cod;
+            lucros[*totalLucros].lucroTotal = lucro;
+            strncpy(lucros[*totalLucros].nomeServico, servico->nome, sizeof(lucros[*totalLucros].nomeServico) - 1);
+            lucros[*totalLucros].nomeServico[sizeof(lucros[*totalLucros].nomeServico) - 1] = '\0';  // Garantir terminação nula
+            (*totalLucros)++;
+        }
+
+        free(servico);  // Liberar a memória do serviço
+    }
+
+    free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
+
+    // Ordenar os serviços pelo lucro total (do maior para o menor)
+    qsort(lucros, *totalLucros, sizeof(LucroServico), compararLucro);
+
+    return lucros;
+}
+
 // Função para buscar serviços prestados por pet
 ServicoPrestado* buscarPrestacaoPorPet(int codPet) {
       for (int i = 0; i < totalPrestados; i++) {

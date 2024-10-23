@@ -66,6 +66,7 @@ void menuPrestados() {
         printf("0. Voltar\n");
         printf("1. Listar serviços prestados\n");
         printf("2. Registrar serviço prestado\n");
+        printf("3. Ver lucro por serviço\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
@@ -96,6 +97,23 @@ void menuPrestados() {
                 } else {
                     printf("Serviço registrado com sucesso!\n");
                 }
+                break;
+            }
+            case 3:{
+                int totalLucros;
+                LucroServico *lucros = calcularLucroServicosPrestados(&totalLucros);  // Chama a função que calcula os lucros
+
+                if (totalLucros == 0) {
+                    printf("Nenhum serviço prestado registrado.\n");
+                } else {
+                    printf("\n--- Lucros dos Serviços Prestados ---\n");
+                    for (int i = 0; i < totalLucros; i++) {
+                        printf("Serviço: %s (Código: %d), Lucro total: R$: %.2f\n", 
+                            lucros[i].nomeServico, lucros[i].codServico, lucros[i].lucroTotal);
+                    }
+                }
+
+                free(lucros);  // Liberar a memória do array de lucros
                 break;
             }
             default:
