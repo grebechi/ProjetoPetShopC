@@ -39,12 +39,13 @@ void exibirPrestacoes() {
                 continue;
             }
 
-            // Exibir as informações formatadas
-            printf("Pet: %s (Código: %d), Serviço: %s (Código: %d), Data: %s, Cliente Solicitante: %s (Código: %d)\n",
+            // Exibir as informações formatadas, incluindo o lucro
+            printf("Pet: %s (Código: %d), Serviço: %s (Código: %d), Data: %s, Cliente Solicitante: %s (Código: %d), Lucro: R$: %.2f\n",
                    pet->nome, pet->cod,
                    servico->nome, servico->cod,
                    listaServicosPrestados[i].data,
-                   cliente->nome, cliente->cod);
+                   cliente->nome, cliente->cod,
+                   listaServicosPrestados[i].lucro);
 
             // Liberar a memória alocada para pet, cliente e serviço
             free(pet);
@@ -55,6 +56,63 @@ void exibirPrestacoes() {
 
     free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
 
+}
+
+void exibirLucroTotalServicos() {
+    int quantidade;
+    ServicoPrestado *listaServicosPrestados = listarPrestacoes(&quantidade);  // Obtém a lista de serviços prestados
+
+    if (quantidade == 0) {
+        printf("Nenhum serviço prestado registrado.\n");
+        return;
+    }
+
+    // Array para armazenar os lucros por serviço (assumindo que não haverá mais de 'quantidade' serviços diferentes)
+    float lucros[quantidade];  // Array para armazenar os lucros totais por serviço
+    int codigosServicos[quantidade];  // Array para armazenar os códigos dos serviços
+    int totalServicos = 0;
+
+    // Inicializar os arrays
+    for (int i = 0; i < quantidade; i++) {
+        lucros[i] = 0;
+        codigosServicos[i] = 0;
+    }
+
+    // Agrupar os lucros por código de serviço
+    for (int i = 0; i < quantidade; i++) {
+        int codigoAtual = listaServicosPrestados[i].codServico;
+
+        // Verificar se o serviço já está no array de lucros
+        int encontrado = 0;
+        for (int j = 0; j < totalServicos; j++) {
+            if (codigosServicos[j] == codigoAtual) {
+                lucros[j] += listaServicosPrestados[i].lucro;  // Somar o lucro
+                encontrado = 1;
+                break;
+            }
+        }
+
+        // Se o serviço não foi encontrado, adicioná-lo ao array
+        if (!encontrado) {
+            codigosServicos[totalServicos] = codigoAtual;
+            lucros[totalServicos] = listaServicosPrestados[i].lucro;
+            totalServicos++;
+        }
+    }
+
+    // Exibir os resultados
+    printf("\n--- Lucros dos Serviços Prestados ---\n");
+    for (int i = 0; i < totalServicos; i++) {
+        // Buscar o nome do serviço pelo código
+        Servico *servico = buscarServicoPorCodigo(codigosServicos[i]);
+        if (servico != NULL) {
+            printf("Serviço: %s (Código: %d), Lucro total: R$: %.2f\n",
+                   servico->nome, servico->cod, lucros[i]);
+            free(servico);  // Liberar a memória do serviço
+        }
+    }
+
+    free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
 }
 
 // Função para o menu de Serviços Prestados
@@ -100,20 +158,7 @@ void menuPrestados() {
                 break;
             }
             case 3:{
-                int totalLucros;
-                LucroServico *lucros = calcularLucroServicosPrestados(&totalLucros);  // Chama a função que calcula os lucros
-
-                if (totalLucros == 0) {
-                    printf("Nenhum serviço prestado registrado.\n");
-                } else {
-                    printf("\n--- Lucros dos Serviços Prestados ---\n");
-                    for (int i = 0; i < totalLucros; i++) {
-                        printf("Serviço: %s (Código: %d), Lucro total: R$: %.2f\n", 
-                            lucros[i].nomeServico, lucros[i].codServico, lucros[i].lucroTotal);
-                    }
-                }
-
-                free(lucros);  // Liberar a memória do array de lucros
+                exibirLucroTotalServicos();  // Exibir os lucros agrupados por serviço
                 break;
             }
             default:
