@@ -13,9 +13,16 @@ typedef struct {
     float lucroTotal;
 } PetLucro;
 
+// Estrutura para armazenar o código do cliente e o lucro total
+typedef struct {
+    int codCliente;
+    float lucroTotal;
+} ClienteLucro;
+
 void exibirPrestacoes() {
-     int quantidade;
+    int quantidade;
     ServicoPrestado *listaServicosPrestados = listarPrestacoes(&quantidade);  // Obtém os serviços prestados
+    float lucroTotal = 0;  // Variável para armazenar o lucro total
 
     if (quantidade == 0) {
         printf("Nenhum serviço prestado registrado.\n");
@@ -23,45 +30,56 @@ void exibirPrestacoes() {
         for (int i = 0; i < quantidade; i++) {
             // Buscar o pet
             Pet *pet = buscarPetPorCodigo(listaServicosPrestados[i].codPet);
-            if (pet == NULL) {
-                printf("Pet não encontrado (Código: %d).\n", listaServicosPrestados[i].codPet);
-                continue;
-            }
 
-            // Buscar o cliente associado ao pet
-            Cliente *cliente = buscarClientePorCodigo(pet->codCliente);
-            if (cliente == NULL) {
-                printf("Cliente não encontrado para o pet %s (Código: %d).\n", pet->nome, pet->cod);
-                free(pet);  // Liberar a memória do pet
-                continue;
+            // Buscar o cliente associado ao pet, se o pet foi encontrado
+            Cliente *cliente = NULL;
+            if (pet != NULL) {
+                cliente = buscarClientePorCodigo(pet->codCliente);
             }
 
             // Buscar o serviço
             Servico *servico = buscarServicoPorCodigo(listaServicosPrestados[i].codServico);
-            if (servico == NULL) {
-                printf("Serviço não encontrado (Código: %d).\n", listaServicosPrestados[i].codServico);
-                free(pet);  // Liberar a memória do pet
-                free(cliente);  // Liberar a memória do cliente
-                continue;
+
+            // Exibir as informações formatadas
+            printf("Serviço Prestado - Data: %s\n", listaServicosPrestados[i].data);
+
+            // Verificar quais informações foram encontradas e exibir apenas o que foi encontrado
+            if (pet != NULL) {
+                printf("Pet: %s (Código: %d)\n", pet->nome, pet->cod);
+            } else {
+                printf("Pet: Não encontrado (Código: %d)\n", listaServicosPrestados[i].codPet);
             }
 
-            // Exibir as informações formatadas, incluindo o lucro
-            printf("Pet: %s (Código: %d), Serviço: %s (Código: %d), Data: %s, Cliente Solicitante: %s (Código: %d), Lucro: R$: %.2f\n",
-                   pet->nome, pet->cod,
-                   servico->nome, servico->cod,
-                   listaServicosPrestados[i].data,
-                   cliente->nome, cliente->cod,
-                   listaServicosPrestados[i].lucro);
+            if (cliente != NULL) {
+                printf("Cliente: %s (Código: %d)\n", cliente->nome, cliente->cod);
+            } else if (pet != NULL) {
+                printf("Cliente: Não encontrado para o pet %s (Código: %d)\n", pet->nome, pet->cod);
+            }
 
-            // Liberar a memória alocada para pet, cliente e serviço
-            free(pet);
-            free(cliente);
-            free(servico);
+            if (servico != NULL) {
+                printf("Serviço: %s (Código: %d)\n", servico->nome, servico->cod);
+            } else {
+                printf("Serviço: Não encontrado (Código: %d)\n", listaServicosPrestados[i].codServico);
+            }
+
+            // Exibir o lucro do serviço prestado
+            printf("Lucro: R$: %.2f\n\n", listaServicosPrestados[i].lucro);
+
+            // Somar o lucro ao total
+            lucroTotal += listaServicosPrestados[i].lucro;
+
+            // Liberar a memória alocada para pet, cliente e serviço, se encontrados
+            if (pet != NULL) free(pet);
+            if (cliente != NULL) free(cliente);
+            if (servico != NULL) free(servico);
         }
     }
 
-    free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
+    // Exibir o lucro total de todos os serviços listados
+    printf("\nLucro total de todos os serviços: R$: %.2f\n", lucroTotal);
 
+    // Liberar a memória da lista de serviços prestados
+    free(listaServicosPrestados);
 }
 
 void exibirLucroTotalServicos() {
@@ -140,7 +158,6 @@ void exibirLucroPorPet() {
     // Array para armazenar o lucro total por pet
     PetLucro petLucros[quantidade];
     int totalPets = 0;
-    float lucroTotalGeral = 0;
 
     // Inicializar os arrays de lucros
     for (int i = 0; i < quantidade; i++) {
@@ -173,6 +190,8 @@ void exibirLucroPorPet() {
     // Ordenar os pets pelo lucro total em ordem decrescente
     qsort(petLucros, totalPets, sizeof(PetLucro), compararLucros);
 
+    float lucroTotalGeral = 0;  // Variável para calcular o lucro total exibido
+
     // Exibir os resultados
     printf("\n--- Ranking de Pets que Mais Trouxeram Lucro ---\n");
     for (int i = 0; i < totalPets; i++) {
@@ -188,14 +207,87 @@ void exibirLucroPorPet() {
                 free(cliente);  // Liberar a memória do cliente
             }
             free(pet);  // Liberar a memória do pet
+            // Somar apenas os lucros dos pets que estão sendo exibidos
+            lucroTotalGeral += petLucros[i].lucroTotal;
+        }
+    }
+
+    // Exibir o lucro total geral apenas dos pets listados
+    printf("\nLucro total de todos os pets listados: R$: %.2f\n", lucroTotalGeral);
+
+    free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
+}
+
+void exibirLucroPorCliente() {
+    int quantidade;
+    ServicoPrestado *listaServicosPrestados = listarPrestacoes(&quantidade);  // Obtém a lista de serviços prestados
+
+    if (quantidade == 0) {
+        printf("Nenhum serviço prestado registrado.\n");
+        return;
+    }
+
+    // Array para armazenar o lucro total por cliente
+    ClienteLucro clienteLucros[quantidade];
+    int totalClientes = 0;
+    float lucroTotalGeral = 0;
+
+    // Inicializar os arrays de lucros
+    for (int i = 0; i < quantidade; i++) {
+        clienteLucros[i].codCliente = 0;
+        clienteLucros[i].lucroTotal = 0;
+    }
+
+    // Agrupar os lucros por cliente
+    for (int i = 0; i < quantidade; i++) {
+        // Buscar o pet para obter o código do cliente
+        Pet *pet = buscarPetPorCodigo(listaServicosPrestados[i].codPet);
+        if (pet == NULL) {
+            continue;  // Ignora se o pet não for encontrado
         }
 
-        // Somar o lucro total de todos os pets
-        lucroTotalGeral += petLucros[i].lucroTotal;
+        int codigoClienteAtual = pet->codCliente;
+
+        // Verificar se o cliente já está no array de lucros
+        int encontrado = 0;
+        for (int j = 0; j < totalClientes; j++) {
+            if (clienteLucros[j].codCliente == codigoClienteAtual) {
+                clienteLucros[j].lucroTotal += listaServicosPrestados[i].lucro;  // Somar o lucro
+                encontrado = 1;
+                break;
+            }
+        }
+
+        // Se o cliente não foi encontrado, adicioná-lo ao array
+        if (!encontrado) {
+            clienteLucros[totalClientes].codCliente = codigoClienteAtual;
+            clienteLucros[totalClientes].lucroTotal = listaServicosPrestados[i].lucro;
+            totalClientes++;
+        }
+
+        free(pet);  // Liberar a memória do pet
+    }
+
+    // Ordenar os clientes pelo lucro total em ordem decrescente
+    qsort(clienteLucros, totalClientes, sizeof(ClienteLucro), compararLucros);
+
+    // Exibir os resultados
+    printf("\n--- Ranking de Clientes que Mais Trouxeram Lucro ---\n");
+    for (int i = 0; i < totalClientes; i++) {
+        // Buscar o cliente pelo código
+        Cliente *cliente = buscarClientePorCodigo(clienteLucros[i].codCliente);
+        if (cliente != NULL) {
+            printf("Cliente: %s (Código: %d), Lucro total: R$: %.2f\n",
+                   cliente->nome, cliente->cod, clienteLucros[i].lucroTotal);
+            free(cliente);  // Liberar a memória do cliente
+        }
+
+        // Somar o lucro total de todos os clientes
+        lucroTotalGeral += clienteLucros[i].lucroTotal;
     }
 
     // Exibir o lucro total geral
-    printf("\nLucro total de todos os pets: R$: %.2f\n", lucroTotalGeral);
+    printf("\nLucro total de todos os clientes: R$: %.2f\n", lucroTotalGeral);
 
     free(listaServicosPrestados);  // Liberar a memória da lista de serviços prestados
 }
@@ -211,6 +303,7 @@ void menuPrestados() {
         printf("2. Registrar serviço prestado\n");
         printf("3. Ver lucro por serviço\n");
         printf("4. Ver pet que mais trouxe lucro\n"); 
+        printf("5. Ver cliente que mais trouxe lucro\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
@@ -249,6 +342,10 @@ void menuPrestados() {
             }
             case 4:{
                 exibirLucroPorPet();  // Exibir o ranking de pets que mais trouxeram lucro
+                break;
+            }
+            case 5:{
+                exibirLucroPorCliente();  // Exibir o ranking de clientes que mais trouxeram lucro
                 break;
             }
             default:
